@@ -1,0 +1,77 @@
+services:
+  mc-bumcraft-server:
+    container_name: mc-bumcraft-server
+    image: itzg/minecraft-server:java21
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+
+    # Use public DNS so the container can resolve api.curseforge.com
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+    ports:
+      # Minecraft Game Traffic (TCP)
+      - "25565:25565/tcp"
+      # Query/status compatibility (UDP)
+      - "25565:25565/udp"
+      # Simple Voice Chat mod (UDP) - pre-allocated
+      - "24454:24454/udp"
+      # RCON (TCP)
+      - "25575:25575/tcp"
+
+    environment:
+      # Accept the Minecraft EULA
+      EULA: "TRUE"
+
+      # Container file ownership - match host user to avoid root-owned files
+      UID: "1000"
+      GID: "1000"
+
+      # Loader: CurseForge modpack (Bumcraft 2: Eviction Edition)
+      TYPE: "AUTO_CURSEFORGE"
+      CF_PAGE_URL: "https://www.curseforge.com/minecraft/modpacks/bumcraft-2-eviction-edition"
+      CF_API_KEY: "${CF_API_KEY}"
+
+      # Use local modpack zip instead of CurseForge API download
+      CF_MODPACK_ZIP: "/modpacks/Bumcraft 2- Eviction Edition-1.0.zip"
+
+      # CurseForge direct-file downloads for extra mods (1.20.1 Forge versions):
+      #   i-wanna-skate + its library dependency citadel
+      CURSEFORGE_FILES: "i-wanna-skate,citadel"
+
+      # JVM memory: 24GB heap with Generational ZGC (Java 21)
+      MEMORY: "24G"
+      USE_AIKAR_FLAGS: "false"
+      JVM_XX_OPTS: >-
+        -XX:+UseZGC
+        -XX:+ZGenerational
+        -XX:+AlwaysPreTouch
+        -XX:+DisableExplicitGC
+        -XX:+PerfDisableSharedMem
+        -XX:+ParallelRefProcEnabled
+        -XX:+UnlockExperimentalVMOptions
+        -XX:G1HeapRegionSize=16M
+        -XX:MaxGCPauseMillis=50
+
+      # Server identity
+      MOTD: "Bumcraft 2: Skate or Evict Edition (24GB ZGC)"
+
+      # Gameplay
+      ALLOW_FLIGHT: "true"
+
+      # RCON for remote console access
+      ENABLE_RCON: "true"
+      RCON_PASSWORD: "CHANGE_ME"
+
+      # Disable Mojang snooper
+      SNOOPER_ENABLED: "false"
+
+    volumes:
+      # Persistent server files, world data, and configs
+      - ./data:/data
+      # Local modpack drop-in directory (read-only)
+      - ./modpacks:/modpacks:ro
+      # Custom server/universal mod jars (read-only)
+      - ./mods:/mods:ro

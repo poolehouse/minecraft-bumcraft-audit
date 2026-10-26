@@ -1,0 +1,43 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+.venv/
+venv/
+.env.local
+
+# Minecraft server runtime artifacts (do not commit worlds/logs/mod jars)
+*.log
+*.log.gz
+logs/
+world/
+crash-reports/
+ops.json
+banned-*.json
+whitelist.json
+usercache.json
+uuidcache.json
+server.properties*
+eula.txt
+*.jar
+*.zip
+mods/
+config/
+resourcepacks/
+data/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Misc
+*.tmp
+*.bak

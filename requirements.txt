@@ -1,0 +1,6 @@
+# Bumcraft audit tooling services (mc_ai_builder.py, mc_rcon_api.py)
+fastapi>=0.104.0
+httpx>=0.25.0
+mcrcon>=1.1.0
+pydantic>=2.5.0
+uvicorn>=0.24.0

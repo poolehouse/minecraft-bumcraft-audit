@@ -1,0 +1,38 @@
+flowchart TB
+    %% External clients
+    C[("Minecraft Client")]:::client
+    API[("HTTP Client / API Consumer")]:::client
+
+    %% Game server
+    subgraph DC["Docker: itgz/minecraft-server:java21"]
+        MC[Forge 1.20.1 Server]
+        MODS[105 Mods + 82 Configs]
+        WORLD[(World / data/)]
+        RCON[RCON 25575/TCP]
+    end
+
+    %% Services
+    subgraph SVCS["Host Services (Python)"]
+        BUILD[mc_ai_builder.py<br/>asyncio + mcrcon + httpx]
+        APISRV[mc_rcon_api.py<br/>FastAPI :8090]
+        OLLAMA[(Ollama qwen3-coder-next<br/>:11434)]
+    end
+
+    %% Connections
+    C <-->|25565 TCP/UDP<br/>24454 UDP voice| MC
+    API -->|HTTP :8090| APISRV
+    APISRV <-->|RCON| RCON
+    BUILD <-->|RCON| RCON
+    BUILD -->|tails| WORLD
+    BUILD -->|Ollama API| OLLAMA
+    APISRV -->|Ollama API| OLLAMA
+    MODS --> MC
+    MC --> WORLD
+
+    classDef client fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef service fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef server fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px;
+
+    class C,API client;
+    class BUILD,APISRV,OLLAMA service;
+    class MC,MODS,WORLD,RCON server;
